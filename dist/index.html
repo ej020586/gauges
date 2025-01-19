@@ -4,8 +4,9 @@
 <head>
   <title>BeamNG Gauges</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <script type="module" crossorigin src="./assets/index-CZwCt5lN.js"></script>
-  <link rel="stylesheet" crossorigin href="./assets/index-BDvSyy4B.css">
+
+  <script type="module" crossorigin src="/assets/index-Dz0NhPsa.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-DWyTuJn_.css">
 </head>
 
 <body>
@@ -14,10 +15,10 @@
 
   <!-- Provide global methods Lua will call -->
   <script>
-    window.setup = function () {
+    window.setup = function (gameData) {
       console.log("Lua called setup()");
       // If you need any global initialization, do it here.
-      document.dispatchEvent(new Event("LuaSetup"));
+      document.dispatchEvent(new Event("LuaSetup", { detail: gameData }));
     };
 
     window.updateData = function (gameData) {
