@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import Speedometer from "./Speedometer";
 import Tachometer from "./Tachometer";
 import { useEngineRev } from "../hooks/useEngineRev";
+import BackgroundGrid from "./BackgroundGrid";
 
 function App() {
   const [payloads, setPayloads] = useState<{ timestamp: string; data: any }[]>(
@@ -60,29 +61,34 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gray-900">
-      {/* Debug Panel */}
-      <div className="fixed top-0 left-0 p-4 max-w-md max-h-screen overflow-auto">
-        <div className="bg-white rounded-lg shadow-lg p-4">
-          <h1 className="text-2xl font-bold mb-4">BeamNG Debug Panel</h1>
-          <div className="space-y-2">
-            {payloads.map((payload, index) => (
-              <div key={index} className="bg-gray-100 p-2 rounded text-sm">
-                <div className="text-gray-600">
-                  {new Date(payload.timestamp).toLocaleString()}
-                </div>
-                <pre className="mt-1 text-xs overflow-x-auto">
-                  {JSON.stringify(payload.data, null, 2)}
-                </pre>
+      {payloads.length > 0 && (
+        <>
+          <div className="fixed top-0 left-0 p-4 max-w-md max-h-screen overflow-auto">
+            <div className="bg-white rounded-lg shadow-lg p-4">
+              <h1 className="text-2xl font-bold mb-4">BeamNG Debug Panel</h1>
+              <div className="space-y-2">
+                {payloads.map((payload, index) => (
+                  <div key={index} className="bg-gray-100 p-2 rounded text-sm">
+                    <div className="text-gray-600">
+                      {new Date(payload.timestamp).toLocaleString()}
+                    </div>
+                    <pre className="mt-1 text-xs overflow-x-auto">
+                      {JSON.stringify(payload.data, null, 2)}
+                    </pre>
+                  </div>
+                ))}
               </div>
-            ))}
+            </div>
           </div>
-        </div>
-      </div>
+          <BackgroundGrid />
+        </>
+      )}
+      {/* Debug Panel */}
 
       {/* Speedometer */}
       <div className="fixed top-20 p-8 w-screen">
         <div className="flex flex-row items-center justify-center">
-          <div>
+          <div className="bg-gray-900">
             <Speedometer value={speed} />
             <button
               className="bg-blue-500 text-white px-4 py-2 rounded mr-2"
@@ -99,7 +105,7 @@ function App() {
               Decrease Speed
             </button>
           </div>
-          <div className="flex flex-col items-center">
+          <div className="flex flex-col items-center bg-gray-900">
             <Tachometer value={rpm} redLine={redLine} maxValue={maxRPM} />
             <button
               className="bg-red-500 hover:bg-red-600 text-white px-8 py-4 rounded-lg text-xl font-bold mt-4 focus:outline-none active:bg-red-700 transition-colors"
