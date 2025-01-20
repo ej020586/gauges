@@ -6,5 +6,7 @@ export default defineConfig({
   base: "./src", // so relative paths work offline
   build: {
     outDir: "dist",
+    target: ["chrome89"],
+    minify: false,
   },
 });

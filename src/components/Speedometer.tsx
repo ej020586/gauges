@@ -14,7 +14,7 @@ const Speedometer: React.FC<SpeedometerProps> = ({ value, className }) => {
         minValue={0}
         maxValue={160}
         className={className}
-        size={400}
+        size={250}
         startAngle={-120}
         endAngle={90}
         majorTickCount={15}

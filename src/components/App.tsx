@@ -9,6 +9,8 @@ function App() {
     []
   );
 
+  const [speed, setSpeed] = useState(20);
+
   useEffect(() => {
     function handleSetup(event) {
       const payload = {
@@ -25,6 +27,12 @@ function App() {
         data: event.detail,
       };
       setPayloads([...payloads, payload]);
+
+      if (event.detail.electrics.wheelspeed) {
+        setSpeed(event.detail.electrics.wheelspeed);
+      } else {
+        setSpeed(speed + 1);
+      }
     }
 
     document.addEventListener("LuaSetup", handleSetup);
@@ -35,8 +43,6 @@ function App() {
       document.removeEventListener("LuaDataUpdate", handleDataUpdate);
     };
   }, [payloads]);
-
-  const [speed, setSpeed] = useState(0);
   const { rpm, startRevving, stopRevving, redLine, maxRPM } = useEngineRev({
     idleRPM: 800,
     maxRPM: 8500,
@@ -86,11 +92,11 @@ function App() {
       {/* Debug Panel */}
 
       {/* Speedometer */}
-      <div className="fixed top-20 p-8 w-screen">
+      <div className="fixed top-0 w-screen">
         <div className="flex flex-row items-center justify-center">
           <div className="bg-gray-900">
             <Speedometer value={speed} />
-            <button
+            {/* <button
               className="bg-blue-500 text-white px-4 py-2 rounded mr-2"
               onClick={() =>
                 setSpeed((prev) => (prev + 10 > 160 ? 160 : prev + 10))
@@ -103,11 +109,11 @@ function App() {
               onClick={() => setSpeed((prev) => (prev > 10 ? prev - 10 : 0))}
             >
               Decrease Speed
-            </button>
+            </button> */}
           </div>
           <div className="flex flex-col items-center bg-gray-900">
             <Tachometer value={rpm} redLine={redLine} maxValue={maxRPM} />
-            <button
+            {/* <button
               className="bg-red-500 hover:bg-red-600 text-white px-8 py-4 rounded-lg text-xl font-bold mt-4 focus:outline-none active:bg-red-700 transition-colors"
               onMouseDown={startRevving}
               onMouseUp={stopRevving}
@@ -116,7 +122,7 @@ function App() {
               onTouchEnd={stopRevving}
             >
               Rev Engine
-            </button>
+            </button> */}
           </div>
         </div>
       </div>
