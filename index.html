@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>BeamNG Gauges</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+</head>
+
+<body>
+  <!-- Our React app mounts here -->
+  <div id="root"></div>
+
+  <!-- Provide global methods Lua will call -->
+  <script>
+    window.setup = function (gameData) {
+      console.log("Lua called setup()");
+      // If you need any global initialization, do it here.
+      document.dispatchEvent(new Event("LuaSetup", { detail: gameData }));
+    };
+
+    window.updateData = function (gameData) {
+      console.log("Lua called updateData():", gameData);
+      // Dispatch custom event, so React can pick up new data
+      document.dispatchEvent(
+        new CustomEvent("LuaDataUpdate", { detail: gameData })
+      );
+    };
+  </script>
+
+  <!-- Include the bundled JavaScript -->
+  <script type="module" src="/src/index.tsx"></script>
+</body>
+
+</html>
