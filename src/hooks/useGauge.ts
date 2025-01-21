@@ -19,10 +19,16 @@ interface TickMark {
 }
 
 export const useGauge = (initialValue: number, config: GaugeConfig) => {
-  const [value, setValue] = useState(initialValue);
+  const [value, _setValue] = useState(initialValue);
   const [targetValue, setTargetValue] = useState(initialValue);
 
   const { minValue, maxValue, startAngle = -120, endAngle = 120 } = config;
+
+  const setValue = (val: number) => {
+    // Clamp the value between minValue and maxValue
+    const clampedValue = Math.min(Math.max(val, minValue), maxValue);
+    setTargetValue(clampedValue);
+  };
 
   // Convert value to angle for needle rotation
   const valueToAngle = (val: number): number => {
@@ -30,7 +36,7 @@ export const useGauge = (initialValue: number, config: GaugeConfig) => {
     const boundedValue = Math.max(minValue, Math.min(maxValue, val));
     const normalizedValue = (boundedValue - minValue) / (maxValue - minValue);
     // Map the value to the angle range
-    return startAngle + normalizedValue * (endAngle - startAngle);
+    return Math.floor(startAngle + normalizedValue * (endAngle - startAngle));
   };
 
   // Convert angle to value
@@ -141,19 +147,25 @@ export const useGauge = (initialValue: number, config: GaugeConfig) => {
   useEffect(() => {
     const animationFrame = requestAnimationFrame(() => {
       if (Math.abs(targetValue - value) > 0.1) {
-        setValue(value + (targetValue - value) * 0.1);
+        const newVal = Math.floor(value + (targetValue - value) * 0.1);
+        _setValue(newVal);
       } else {
-        setValue(targetValue);
+        _setValue(targetValue);
       }
     });
 
     return () => cancelAnimationFrame(animationFrame);
   }, [value, targetValue]);
 
+  const angle = valueToAngle(value);
+  console.log("value", value);
+  console.log("targetValue", targetValue);
+  console.log("angle", angle);
+
   return {
     value,
-    setValue: setTargetValue,
-    angle: valueToAngle(value),
+    setValue,
+    angle,
     calculateArcPath,
     calculateSegmentPath,
     generateTicks,

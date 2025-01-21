@@ -1,8 +1,8 @@
-import React, { memo, useEffect } from "react";
-import { motion } from "motion/react";
+import React, { useEffect } from "react";
+import { motion, useAnimate } from "motion/react";
 import { useGauge } from "../hooks/useGauge";
 
-interface RadialGaugeProps {
+interface RadialGaugeBasicProps {
   value: number;
   minValue: number;
   maxValue: number;
@@ -14,7 +14,7 @@ interface RadialGaugeProps {
   showText?: boolean;
 }
 
-const RadialGauge: React.FC<RadialGaugeProps> = ({
+const RadialGaugeBasic: React.FC<RadialGaugeBasicProps> = ({
   value,
   minValue,
   maxValue,
@@ -40,8 +40,7 @@ const RadialGauge: React.FC<RadialGaugeProps> = ({
 
   useEffect(() => {
     gauge.setValue(value);
-    console.log("gauge value", value);
-  }, [value]);
+  }, [value, gauge]);
 
   return (
     <div
@@ -97,21 +96,10 @@ const RadialGauge: React.FC<RadialGaugeProps> = ({
         ))}
 
         {/* Needle */}
-        <g transform={`translate(${centerX} ${centerY})`}>
-          <motion.g
-            animate={{ rotate: gauge.angle }}
-            transition={{
-              type: "spring",
-              stiffness: 100,
-              damping: 15,
-              mass: 0.5,
-            }}
-            style={{
-              originX: 0,
-              originY: 1,
-            }}
-          >
-            {/* Main needle */}
+        <g
+          transform={`translate(${centerX} ${centerY}) rotate(${gauge.angle})`}
+        >
+          <g id="needle">
             <line
               x1={0}
               y1={0}
@@ -121,8 +109,8 @@ const RadialGauge: React.FC<RadialGaugeProps> = ({
               strokeWidth={size * 0.01}
               strokeLinecap="round"
             />
-          </motion.g>
-          {/* Center cap (outside motion group to prevent rotation) */}
+          </g>
+          {/* Center cap */}
           <circle r={size * 0.04} fill="#DC2626" />
         </g>
       </svg>
@@ -140,4 +128,4 @@ const RadialGauge: React.FC<RadialGaugeProps> = ({
   );
 };
 
-export default memo(RadialGauge);
+export default RadialGaugeBasic;
