@@ -7,6 +7,7 @@ export default defineConfig({
   build: {
     outDir: "dist",
     minify: false,
+    target: ["es2015"],
   },
   define: {
     __DEV__: JSON.stringify(process.env.NODE_ENV === 'development'),
