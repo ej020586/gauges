@@ -12,9 +12,9 @@ function App() {
     []
   );
 
-  const [speed, setSpeed] = useState(20);
+  const [speed, setSpeed] = useState(0);
   const [gear, setGear] = useState("N");
-  const [rpm, setRpm] = useState(0);
+  const [rpm, setRpm] = useState(1500);
   const {
     rpm: testingRpm,
     startRevving,

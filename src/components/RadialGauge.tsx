@@ -40,7 +40,6 @@ const RadialGauge: React.FC<RadialGaugeProps> = ({
 
   useEffect(() => {
     gauge.setValue(value);
-    console.log("gauge value", value);
   }, [value]);
 
   return (

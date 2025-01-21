@@ -1,5 +1,6 @@
 import React from "react";
 import RadialGauge from "./RadialGauge";
+import RadialGaugeMotionAPI from "./RadialGaugeMotionAPI";
 
 interface SpeedometerProps {
   value: number;
@@ -9,7 +10,7 @@ interface SpeedometerProps {
 const Speedometer: React.FC<SpeedometerProps> = ({ value, className }) => {
   return (
     <div className="relative">
-      <RadialGauge
+      <RadialGaugeMotionAPI
         value={value}
         minValue={0}
         maxValue={160}
