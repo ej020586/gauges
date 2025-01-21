@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.2.0] - 2024-03-21
 
+### Updated
+- package update - motion instead of framer motion
+- add temp gauge
+- basic animation
+- motion html attributes
+- motion api
+- connect temp gauge and rpm to electrics
+
+## [0.2.0] - 2024-03-21
+
 ### Added
 - gauges abstraction
 - Speedometer component

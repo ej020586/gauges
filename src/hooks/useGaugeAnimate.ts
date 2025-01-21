@@ -18,15 +18,16 @@ interface TickMark {
   value: number;
 }
 
-export const useGauge = (initialValue: number, config: GaugeConfig) => {
+export const useGaugeAnimate = (initialValue: number, config: GaugeConfig) => {
   const [value, _setValue] = useState(initialValue);
+  const [targetValue, setTargetValue] = useState(initialValue);
 
   const { minValue, maxValue, startAngle = -120, endAngle = 120 } = config;
 
   const setValue = (val: number) => {
     // Clamp the value between minValue and maxValue
     const clampedValue = Math.min(Math.max(val, minValue), maxValue);
-    _setValue(clampedValue);
+    setTargetValue(clampedValue);
   };
 
   // Convert value to angle for needle rotation
@@ -141,6 +142,20 @@ export const useGauge = (initialValue: number, config: GaugeConfig) => {
 
     return { majorTicks, minorTicks };
   };
+
+  // Add animation effect when value changes
+  useEffect(() => {
+    const animationFrame = requestAnimationFrame(() => {
+      if (Math.abs(targetValue - value) > 0.1) {
+        const newVal = Math.floor(value + (targetValue - value) * 0.1);
+        _setValue(newVal);
+      } else {
+        _setValue(targetValue);
+      }
+    });
+
+    return () => cancelAnimationFrame(animationFrame);
+  }, [value, targetValue]);
 
   const angle = valueToAngle(value);
 

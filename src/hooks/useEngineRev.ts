@@ -27,7 +27,7 @@ export const useEngineRev = ({
   // Function to add randomness to idle RPM
   const getIdleVariation = useCallback(() => {
     const randomVariation = (Math.random() - 0.5) * 2 * idleFluctuation;
-    return idleRPM + randomVariation;
+    return Math.floor(idleRPM + randomVariation);
   }, [idleRPM, idleFluctuation]);
 
   // Function to simulate power loss at high RPMs
@@ -69,7 +69,7 @@ export const useEngineRev = ({
           return getIdleVariation();
         }
 
-        return Math.max(newRPM, getIdleVariation());
+        return Math.floor(Math.max(newRPM, getIdleVariation()));
       }
     },
     [

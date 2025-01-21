@@ -1,8 +1,9 @@
 import React, { memo, useEffect } from "react";
-import { motion } from "motion/react";
+import { motion, useAnimate } from "motion/react";
 import { useGauge } from "../hooks/useGauge";
+import { transform } from "motion";
 
-interface RadialGaugeProps {
+interface RadialGaugeMotionAPIProps {
   value: number;
   minValue: number;
   maxValue: number;
@@ -14,7 +15,7 @@ interface RadialGaugeProps {
   showText?: boolean;
 }
 
-const RadialGauge: React.FC<RadialGaugeProps> = ({
+const RadialGaugeMotionAPI: React.FC<RadialGaugeMotionAPIProps> = ({
   value,
   minValue,
   maxValue,
@@ -36,7 +37,36 @@ const RadialGauge: React.FC<RadialGaugeProps> = ({
   const centerX = radius;
   const centerY = radius;
   const tickLength = size * 0.05;
+  const circleRadius = 7.5;
+  const originX = 0.5;
+  const originY = 1 - (circleRadius * 2) / size;
   const { majorTicks, minorTicks } = gauge.generateTicks(majorTickCount, 4);
+
+  const [scope, animate] = useAnimate();
+
+  useEffect(() => {
+    const animateNeedle = async () => {
+      console.log("originY", originY);
+      await animate(
+        scope.current,
+        {
+          transform: `rotate(${gauge.angle}deg)`,
+          originX,
+          originY,
+          rotate: gauge.angle,
+        },
+        {
+          duration: 0.5,
+          ease: "easeOut",
+          onComplete: () => {
+            console.log("animateNeedle complete");
+          },
+        }
+      );
+    };
+
+    animateNeedle();
+  }, [gauge.angle]);
 
   useEffect(() => {
     gauge.setValue(value);
@@ -96,33 +126,19 @@ const RadialGauge: React.FC<RadialGaugeProps> = ({
         ))}
 
         {/* Needle */}
-        <g transform={`translate(${centerX} ${centerY})`}>
-          <motion.g
-            animate={{ rotate: gauge.angle }}
-            transition={{
-              type: "spring",
-              stiffness: 100,
-              damping: 15,
-              mass: 0.5,
-            }}
-            style={{
-              originX: 0,
-              originY: 1,
-            }}
-          >
-            {/* Main needle */}
+        <g transform={`translate(${centerX}, ${centerY})`}>
+          <motion.g ref={scope} style={{ originX, originY }}>
             <line
               x1={0}
               y1={0}
               x2={0}
-              y2={-size * 0.35}
+              y2={-radius * 0.75}
               stroke="#DC2626"
-              strokeWidth={size * 0.01}
+              strokeWidth={2.5}
               strokeLinecap="round"
             />
+            <circle cx={0} cy={0} r={circleRadius} fill="#DC2626" />
           </motion.g>
-          {/* Center cap (outside motion group to prevent rotation) */}
-          <circle r={size * 0.04} fill="#DC2626" />
         </g>
       </svg>
 
@@ -139,4 +155,4 @@ const RadialGauge: React.FC<RadialGaugeProps> = ({
   );
 };
 
-export default memo(RadialGauge);
+export default memo(RadialGaugeMotionAPI);

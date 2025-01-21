@@ -1,5 +1,6 @@
 import React from "react";
 import RadialGauge from "./RadialGauge";
+import RadialGaugeMotionAPI from "./RadialGaugeMotionAPI";
 
 interface TachometerProps {
   value: number;
@@ -36,14 +37,6 @@ const Tachometer: React.FC<TachometerProps> = ({
         endAngle={60}
         majorTickCount={8}
         showText={false}
-        // Add red zone styling from redLine to maxValue
-        // zones={[
-        //   {
-        //     from: redLine,
-        //     to: 8000,
-        //     color: "rgba(255, 0, 0, 0.2)",
-        //   },
-        // ]}
       />
       {/* Red line indicator light */}
       <div

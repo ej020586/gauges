@@ -3,13 +3,36 @@ import Speedometer from "./Speedometer";
 import Tachometer from "./Tachometer";
 import { useEngineRev } from "../hooks/useEngineRev";
 import BackgroundGrid from "./BackgroundGrid";
+import { isDev } from "../config";
+import TemperatureGauge from "./TemperatureGague";
+import { convertToFahrenheit } from "../lib";
 
 function App() {
   const [payloads, setPayloads] = useState<{ timestamp: string; data: any }[]>(
     []
   );
 
-  const [speed, setSpeed] = useState(20);
+  const [speed, setSpeed] = useState(0);
+  const [gear, setGear] = useState("N");
+  const [rpm, setRpm] = useState(1500);
+  const {
+    rpm: testingRpm,
+    startRevving,
+    stopRevving,
+    redLine,
+    maxRPM,
+  } = useEngineRev({
+    idleRPM: 800,
+    maxRPM: 8500,
+    redLine: 8000,
+    revUpRate: 4000,
+    revDownRate: 2000,
+    throttleResponse: 0.2,
+    idleFluctuation: 200,
+    powerLossThreshold: 0.85,
+  });
+
+  const [temperature, setTemperature] = useState(15);
 
   useEffect(() => {
     function handleSetup(event) {
@@ -28,10 +51,26 @@ function App() {
       };
       setPayloads([...payloads, payload]);
 
+      if (event.detail.gear) {
+        setGear(event.detail.gear);
+      }
+
       if (event.detail.electrics.wheelspeed) {
-        setSpeed(event.detail.electrics.wheelspeed);
-      } else {
-        setSpeed(speed + 1);
+        const speed = Number(event.detail.electrics.wheelspeed * 2.3);
+        console.log("speed", speed);
+        setSpeed(speed);
+      }
+
+      if (event.detail.electrics.rpmTacho) {
+        const rpm = Number(event.detail.electrics.rpmTacho);
+        console.log("rpm", rpm);
+        setRpm(rpm);
+      }
+      if (event.detail.electrics.oil) {
+        const oilTempInCelsius = Math.round(event.detail.electrics.oil * 130);
+        const oilTempInFahrenheit = convertToFahrenheit(oilTempInCelsius);
+        console.log("oilTempInFahrenheit", oilTempInFahrenheit);
+        setTemperature(oilTempInFahrenheit);
       }
     }
 
@@ -43,27 +82,6 @@ function App() {
       document.removeEventListener("LuaDataUpdate", handleDataUpdate);
     };
   }, [payloads]);
-  const { rpm, startRevving, stopRevving, redLine, maxRPM } = useEngineRev({
-    idleRPM: 800,
-    maxRPM: 8500,
-    redLine: 8000,
-    revUpRate: 4000,
-    revDownRate: 2000,
-    throttleResponse: 0.2,
-    idleFluctuation: 200,
-    powerLossThreshold: 0.85,
-  });
-
-  // useEffect(() => {
-  //   const interval = setInterval(() => {
-  //     setSpeed((prev) => {
-  //       const change = Math.random() * 10 - 5; // Random change between -5 and 5
-  //       return Math.max(0, Math.min(220, prev + change)); // Clamp between 0 and 220
-  //     });
-  //   }, 100);
-
-  //   return () => clearInterval(interval);
-  // }, []);
 
   return (
     <div className="min-h-screen bg-gray-900">
@@ -96,33 +114,64 @@ function App() {
         <div className="flex flex-row items-center justify-center">
           <div className="bg-gray-900">
             <Speedometer value={speed} />
-            {/* <button
-              className="bg-blue-500 text-white px-4 py-2 rounded mr-2"
-              onClick={() =>
-                setSpeed((prev) => (prev + 10 > 160 ? 160 : prev + 10))
-              }
-            >
-              Increase Speed
-            </button>
-            <button
-              className="bg-blue-500 text-white px-4 py-2 rounded"
-              onClick={() => setSpeed((prev) => (prev > 10 ? prev - 10 : 0))}
-            >
-              Decrease Speed
-            </button> */}
+            {isDev && (
+              <>
+                <button
+                  className="bg-blue-500 text-white px-4 py-2 rounded"
+                  onClick={() =>
+                    setSpeed((prev) => (prev > 10 ? prev - 10 : 0))
+                  }
+                >
+                  - Speed
+                </button>
+                <button
+                  className="bg-blue-500 text-white px-4 py-2 rounded mr-2"
+                  onClick={() =>
+                    setSpeed((prev) => (prev + 10 > 160 ? 160 : prev + 10))
+                  }
+                >
+                  + Speed
+                </button>
+              </>
+            )}
+          </div>
+          <div className="flex flex-col items-center justify-center">
+            <TemperatureGauge value={temperature} />
+            {isDev && (
+              <>
+                <button
+                  className="bg-blue-500 text-white px-4 py-2 rounded mr-2"
+                  onClick={() => setTemperature((prev) => prev + 10)}
+                >
+                  + temp
+                </button>
+                <button
+                  className="bg-blue-500 text-white px-4 py-2 rounded mr-2"
+                  onClick={() => setTemperature((prev) => prev - 10)}
+                >
+                  - temp
+                </button>
+              </>
+            )}
           </div>
           <div className="flex flex-col items-center bg-gray-900">
-            <Tachometer value={rpm} redLine={redLine} maxValue={maxRPM} />
-            {/* <button
-              className="bg-red-500 hover:bg-red-600 text-white px-8 py-4 rounded-lg text-xl font-bold mt-4 focus:outline-none active:bg-red-700 transition-colors"
-              onMouseDown={startRevving}
-              onMouseUp={stopRevving}
-              onMouseLeave={stopRevving}
-              onTouchStart={startRevving}
-              onTouchEnd={stopRevving}
-            >
-              Rev Engine
-            </button> */}
+            <Tachometer
+              value={isDev ? testingRpm : rpm}
+              redLine={redLine}
+              maxValue={maxRPM}
+            />
+            {isDev && (
+              <button
+                className="bg-red-500 hover:bg-red-600 text-white px-8 py-4 rounded-lg text-xl font-bold mt-4 focus:outline-none active:bg-red-700 transition-colors"
+                onMouseDown={startRevving}
+                onMouseUp={stopRevving}
+                onMouseLeave={stopRevving}
+                onTouchStart={startRevving}
+                onTouchEnd={stopRevving}
+              >
+                Rev Engine
+              </button>
+            )}
           </div>
         </div>
       </div>
