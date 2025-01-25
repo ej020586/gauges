@@ -6,11 +6,13 @@ import BackgroundGrid from "./BackgroundGrid";
 import { isDev } from "../config";
 import TemperatureGauge from "./TemperatureGague";
 import { convertToFahrenheit } from "../lib";
+import RotationTestPage from "./RotationTestPage";
 
 function App() {
   const [payloads, setPayloads] = useState<{ timestamp: string; data: any }[]>(
     []
   );
+  const [showRotationTest, setShowRotationTest] = useState(true);
 
   const [speed, setSpeed] = useState(0);
   const [gear, setGear] = useState("N");
@@ -107,74 +109,86 @@ function App() {
           <BackgroundGrid />
         </>
       )}
-      {/* Debug Panel */}
+      {isDev && (
+        <button
+          className="fixed top-4 right-4 z bg-blue-500 text-white px-4 py-2 rounded"
+          onClick={() => setShowRotationTest(!showRotationTest)}
+        >
+          {showRotationTest ? "Show Gauges" : "Test Rotations"}
+        </button>
+      )}
 
-      {/* Speedometer */}
-      <div className="fixed top-0 w-screen">
-        <div className="flex flex-row items-center justify-center">
-          <div className="bg-gray-900">
-            <Speedometer value={speed} />
-            {isDev && (
-              <>
-                <button
-                  className="bg-blue-500 text-white px-4 py-2 rounded"
-                  onClick={() =>
-                    setSpeed((prev) => (prev > 10 ? prev - 10 : 0))
-                  }
-                >
-                  - Speed
-                </button>
-                <button
-                  className="bg-blue-500 text-white px-4 py-2 rounded mr-2"
-                  onClick={() =>
-                    setSpeed((prev) => (prev + 10 > 160 ? 160 : prev + 10))
-                  }
-                >
-                  + Speed
-                </button>
-              </>
-            )}
+      {showRotationTest ? (
+        <RotationTestPage />
+      ) : (
+        <>
+          <div className="fixed top-0 w-screen">
+            <div className="flex flex-row items-center justify-center">
+              <div className="bg-gray-900">
+                <Speedometer value={speed} />
+                {isDev && (
+                  <>
+                    <button
+                      className="bg-blue-500 text-white px-4 py-2 rounded"
+                      onClick={() =>
+                        setSpeed((prev) => (prev > 10 ? prev - 10 : 0))
+                      }
+                    >
+                      - Speed
+                    </button>
+                    <button
+                      className="bg-blue-500 text-white px-4 py-2 rounded mr-2"
+                      onClick={() =>
+                        setSpeed((prev) => (prev + 10 > 160 ? 160 : prev + 10))
+                      }
+                    >
+                      + Speed
+                    </button>
+                  </>
+                )}
+              </div>
+              <div className="flex flex-col items-center justify-center">
+                <TemperatureGauge value={temperature} />
+                {isDev && (
+                  <>
+                    <button
+                      className="bg-blue-500 text-white px-4 py-2 rounded mr-2"
+                      onClick={() => setTemperature((prev) => prev + 10)}
+                    >
+                      + temp
+                    </button>
+                    <button
+                      className="bg-blue-500 text-white px-4 py-2 rounded mr-2"
+                      onClick={() => setTemperature((prev) => prev - 10)}
+                    >
+                      - temp
+                    </button>
+                  </>
+                )}
+              </div>
+              <div className="flex flex-col items-center bg-gray-900">
+                <Tachometer
+                  value={isDev ? testingRpm : rpm}
+                  redLine={redLine}
+                  maxValue={maxRPM}
+                />
+                {isDev && (
+                  <button
+                    className="bg-red-500 hover:bg-red-600 text-white px-8 py-4 rounded-lg text-xl font-bold mt-4 focus:outline-none active:bg-red-700 transition-colors"
+                    onMouseDown={startRevving}
+                    onMouseUp={stopRevving}
+                    onMouseLeave={stopRevving}
+                    onTouchStart={startRevving}
+                    onTouchEnd={stopRevving}
+                  >
+                    Rev Engine
+                  </button>
+                )}
+              </div>
+            </div>
           </div>
-          <div className="flex flex-col items-center justify-center">
-            <TemperatureGauge value={temperature} />
-            {isDev && (
-              <>
-                <button
-                  className="bg-blue-500 text-white px-4 py-2 rounded mr-2"
-                  onClick={() => setTemperature((prev) => prev + 10)}
-                >
-                  + temp
-                </button>
-                <button
-                  className="bg-blue-500 text-white px-4 py-2 rounded mr-2"
-                  onClick={() => setTemperature((prev) => prev - 10)}
-                >
-                  - temp
-                </button>
-              </>
-            )}
-          </div>
-          <div className="flex flex-col items-center bg-gray-900">
-            <Tachometer
-              value={isDev ? testingRpm : rpm}
-              redLine={redLine}
-              maxValue={maxRPM}
-            />
-            {isDev && (
-              <button
-                className="bg-red-500 hover:bg-red-600 text-white px-8 py-4 rounded-lg text-xl font-bold mt-4 focus:outline-none active:bg-red-700 transition-colors"
-                onMouseDown={startRevving}
-                onMouseUp={stopRevving}
-                onMouseLeave={stopRevving}
-                onTouchStart={startRevving}
-                onTouchEnd={stopRevving}
-              >
-                Rev Engine
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
+        </>
+      )}
     </div>
   );
 }
