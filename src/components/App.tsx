@@ -7,12 +7,57 @@ import { isDev } from "../config";
 import TemperatureGauge from "./TemperatureGague";
 import { convertToFahrenheit } from "../lib";
 import RotationTestPage from "./RotationTestPage";
+import ElectricsDisplay from "./ElectricsDisplay";
+
+// Valid view types for type safety
+type ViewType = "gauges" | "rotation" | "electrics";
 
 function App() {
   const [payloads, setPayloads] = useState<{ timestamp: string; data: any }[]>(
     []
   );
-  const [showRotationTest, setShowRotationTest] = useState(true);
+  const [electrics, setElectrics] = useState<Record<string, any>>({});
+
+  // Initialize view from URL or default to gauges
+  const [currentView, setCurrentView] = useState<ViewType>(() => {
+    const params = new URLSearchParams(window.location.search);
+    const viewParam = params.get("view");
+    return viewParam === "gauges" ||
+      viewParam === "rotation" ||
+      viewParam === "electrics"
+      ? viewParam
+      : "gauges";
+  });
+
+  // Update URL when view changes
+  const handleViewChange = (view: ViewType) => {
+    const params = new URLSearchParams(window.location.search);
+    params.set("view", view);
+    window.history.replaceState(
+      {},
+      "",
+      `${window.location.pathname}?${params.toString()}`
+    );
+    setCurrentView(view);
+  };
+
+  // Sync with URL changes
+  useEffect(() => {
+    const handlePopState = () => {
+      const params = new URLSearchParams(window.location.search);
+      const viewParam = params.get("view");
+      if (
+        viewParam === "gauges" ||
+        viewParam === "rotation" ||
+        viewParam === "electrics"
+      ) {
+        setCurrentView(viewParam);
+      }
+    };
+
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
 
   const [speed, setSpeed] = useState(0);
   const [gear, setGear] = useState("N");
@@ -52,6 +97,10 @@ function App() {
         data: event.detail,
       };
       setPayloads([...payloads, payload]);
+
+      if (event.detail.electrics) {
+        setElectrics(event.detail.electrics);
+      }
 
       if (event.detail.gear) {
         setGear(event.detail.gear);
@@ -109,17 +158,45 @@ function App() {
           <BackgroundGrid />
         </>
       )}
-      {isDev && (
+      <div className="fixed top-4 right-4 z-10 space-x-2">
         <button
-          className="fixed top-4 right-4 z bg-blue-500 text-white px-4 py-2 rounded"
-          onClick={() => setShowRotationTest(!showRotationTest)}
+          className={`px-4 py-2 rounded ${
+            currentView === "gauges"
+              ? "bg-blue-700 text-white"
+              : "bg-blue-500 text-white hover:bg-blue-600"
+          }`}
+          onClick={() => handleViewChange("gauges")}
         >
-          {showRotationTest ? "Show Gauges" : "Test Rotations"}
+          Gauges
         </button>
-      )}
+        {isDev && (
+          <button
+            className={`px-4 py-2 rounded ${
+              currentView === "rotation"
+                ? "bg-blue-700 text-white"
+                : "bg-blue-500 text-white hover:bg-blue-600"
+            }`}
+            onClick={() => handleViewChange("rotation")}
+          >
+            Rotation
+          </button>
+        )}
+        <button
+          className={`px-4 py-2 rounded ${
+            currentView === "electrics"
+              ? "bg-blue-700 text-white"
+              : "bg-blue-500 text-white hover:bg-blue-600"
+          }`}
+          onClick={() => handleViewChange("electrics")}
+        >
+          Electrics
+        </button>
+      </div>
 
-      {showRotationTest ? (
+      {currentView === "rotation" ? (
         <RotationTestPage />
+      ) : currentView === "electrics" ? (
+        <ElectricsDisplay electrics={electrics} />
       ) : (
         <>
           <div className="fixed top-0 w-screen">
