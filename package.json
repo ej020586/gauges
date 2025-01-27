@@ -4,7 +4,7 @@
   "description": "Gauges for beam ng",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && cd dist && zip -r ../dist.zip . && cd ..",
     "validate-changelog": "node scripts/validate-changelog.js",
     "prepare": "husky"
   },

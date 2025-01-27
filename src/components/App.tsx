@@ -136,28 +136,6 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gray-900">
-      {payloads.length > 0 && (
-        <>
-          <div className="fixed top-0 left-0 p-4 max-w-md max-h-screen overflow-auto">
-            <div className="bg-white rounded-lg shadow-lg p-4">
-              <h1 className="text-2xl font-bold mb-4">BeamNG Debug Panel</h1>
-              <div className="space-y-2">
-                {payloads.map((payload, index) => (
-                  <div key={index} className="bg-gray-100 p-2 rounded text-sm">
-                    <div className="text-gray-600">
-                      {new Date(payload.timestamp).toLocaleString()}
-                    </div>
-                    <pre className="mt-1 text-xs overflow-x-auto">
-                      {JSON.stringify(payload.data, null, 2)}
-                    </pre>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-          <BackgroundGrid />
-        </>
-      )}
       <div className="fixed top-4 right-4 z-10 space-x-2">
         <button
           className={`px-4 py-2 rounded ${
