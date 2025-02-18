@@ -1,14 +1,16 @@
 import React, { memo } from "react";
 import RadialGaugeBasic from "./RadialGauageBasic";
+import useStore from "../store";
 
 interface TemperatureGaugeProps {
   value: number;
 }
 
-const TemperatureGauge = ({ value = 15 }: TemperatureGaugeProps) => {
+const TemperatureGauge = () => {
+  const temperature = useStore((state) => state.temperature);
   return (
     <RadialGaugeBasic
-      value={value}
+      value={temperature}
       minValue={0}
       maxValue={320}
       majorTickCount={4}

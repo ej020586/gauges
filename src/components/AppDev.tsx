@@ -1,0 +1,240 @@
+import React, { useEffect, useState } from "react";
+import Speedometer from "./Speedometer";
+import Tachometer from "./Tachometer";
+import { useEngineRev } from "../hooks/useEngineRev";
+import BackgroundGrid from "./BackgroundGrid";
+import { isDev } from "../config";
+import TemperatureGauge from "./TemperatureGague";
+import { convertToFahrenheit } from "../lib";
+import RotationTestPage from "./RotationTestPage";
+import ElectricsDisplay from "./ElectricsDisplay";
+
+// Valid view types for type safety
+type ViewType = "gauges" | "rotation" | "electrics";
+
+function AppDev() {
+
+  // Initialize view from URL or default to gauges
+  const [currentView, setCurrentView] = useState<ViewType>(() => {
+    const params = new URLSearchParams(window.location.search);
+    const viewParam = params.get("view");
+    return viewParam === "gauges" ||
+      viewParam === "rotation" ||
+      viewParam === "electrics"
+      ? viewParam
+      : "gauges";
+  });
+
+  // Update URL when view changes
+  const handleViewChange = (view: ViewType) => {
+    const params = new URLSearchParams(window.location.search);
+    params.set("view", view);
+    window.history.replaceState(
+      {},
+      "",
+      `${window.location.pathname}?${params.toString()}`
+    );
+    setCurrentView(view);
+  };
+
+  // Sync with URL changes
+  useEffect(() => {
+    const handlePopState = () => {
+      const params = new URLSearchParams(window.location.search);
+      const viewParam = params.get("view");
+      if (
+        viewParam === "gauges" ||
+        viewParam === "rotation" ||
+        viewParam === "electrics"
+      ) {
+        setCurrentView(viewParam);
+      }
+    };
+
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
+
+  const [speed, setSpeed] = useState(0);
+  const [gear, setGear] = useState("N");
+  const [rpm, setRpm] = useState(1500);
+  const {
+    rpm: testingRpm,
+    startRevving,
+    stopRevving,
+    redLine,
+    maxRPM,
+  } = useEngineRev({
+    idleRPM: 800,
+    maxRPM: 8500,
+    redLine: 8000,
+    revUpRate: 4000,
+    revDownRate: 2000,
+    throttleResponse: 0.2,
+    idleFluctuation: 200,
+    powerLossThreshold: 0.85,
+  });
+
+  const [temperature, setTemperature] = useState(15);
+
+  useEffect(() => {
+    function handleSetup(event) {
+      // const payload = {
+      //   timestamp: new Date().toISOString(),
+      //   data: event.detail,
+      // };
+      // console.log("Received LuaSetup event");
+      // setPayloads([...payloads, payload]);
+    }
+
+    function handleDataUpdate(event) {
+      // const payload = {
+      //   timestamp: new Date().toISOString(),
+      //   data: event.detail,
+      // };
+      // setPayloads([...payloads, payload]);
+
+    //   if (event.detail.electrics) {
+    //     setElectrics(event.detail.electrics);
+    //   }
+
+      if (event.detail.gear) {
+        setGear(event.detail.gear);
+      }
+
+      if (event.detail.electrics.wheelspeed) {
+        const speed = Number(event.detail.electrics.wheelspeed * 2.3);
+        console.log("speed", speed);
+        setSpeed(speed);
+      }
+
+      if (event.detail.electrics.rpmTacho) {
+        const rpm = Math.round(Number(event.detail.electrics.rpmTacho));
+        console.log("rpm", rpm);
+        setRpm(rpm);
+      }
+    //   if (event.detail.electrics.oil) {
+    //     const oilTempInCelsius = Math.round(event.detail.electrics.oil * 130);
+    //     const oilTempInFahrenheit = convertToFahrenheit(oilTempInCelsius);
+    //     console.log("oilTempInFahrenheit", oilTempInFahrenheit);
+    //     setTemperature(oilTempInFahrenheit);
+    //   }
+    }
+
+    document.addEventListener("LuaSetup", handleSetup);
+    document.addEventListener("LuaDataUpdate", handleDataUpdate);
+
+    return () => {
+      document.removeEventListener("LuaSetup", handleSetup);
+      document.removeEventListener("LuaDataUpdate", handleDataUpdate);
+    };
+  }, []);
+
+  const tacValue = isDev ? testingRpm : rpm;
+
+  return (
+    <div className="min-h-screen bg-gray-900">
+      <div className="fixed top-4 right-4 z-10 space-x-2">
+        <button
+          className={`px-4 py-2 rounded ${
+            currentView === "gauges"
+              ? "bg-blue-700 text-white"
+              : "bg-blue-500 text-white hover:bg-blue-600"
+          }`}
+          onClick={() => handleViewChange("gauges")}
+        >
+          Gauges
+        </button>
+        {isDev && (
+          <button
+            className={`px-4 py-2 rounded ${
+              currentView === "rotation"
+                ? "bg-blue-700 text-white"
+                : "bg-blue-500 text-white hover:bg-blue-600"
+            }`}
+            onClick={() => handleViewChange("rotation")}
+          >
+            Rotation
+          </button>
+        )}
+        <button
+          className={`px-4 py-2 rounded ${
+            currentView === "electrics"
+              ? "bg-blue-700 text-white"
+              : "bg-blue-500 text-white hover:bg-blue-600"
+          }`}
+          onClick={() => handleViewChange("electrics")}
+        >
+          Electrics
+        </button>
+      </div>
+
+      <div className="fixed top-0 w-screen">
+            <div className="flex flex-row items-center justify-center">
+              <div className="bg-gray-900">
+                <Speedometer />
+                {isDev && (
+                  <>
+                    <button
+                      className="bg-blue-500 text-white px-4 py-2 rounded"
+                      onClick={() =>
+                        setSpeed((prev) => (prev > 10 ? prev - 10 : 0))
+                      }
+                    >
+                      - Speed
+                    </button>
+                    <button
+                      className="bg-blue-500 text-white px-4 py-2 rounded mr-2"
+                      onClick={() =>
+                        setSpeed((prev) => (prev + 10 > 160 ? 160 : prev + 10))
+                      }
+                    >
+                      + Speed
+                    </button>
+                  </>
+                )}
+              </div>
+              <div className="flex flex-col items-center justify-center">
+                <TemperatureGauge  />
+                {isDev && (
+                  <>
+                    <button
+                      className="bg-blue-500 text-white px-4 py-2 rounded mr-2"
+                      onClick={() => setTemperature((prev) => prev + 10)}
+                    >
+                      + temp
+                    </button>
+                    <button
+                      className="bg-blue-500 text-white px-4 py-2 rounded mr-2"
+                      onClick={() => setTemperature((prev) => prev - 10)}
+                    >
+                      - temp
+                    </button>
+                  </>
+                )}
+              </div>
+              <div className="flex flex-col items-center bg-gray-900">
+                <Tachometer
+                  redLine={redLine}
+                  maxValue={maxRPM}
+                />
+                {isDev && (
+                  <button
+                    className="bg-red-500 hover:bg-red-600 text-white px-8 py-4 rounded-lg text-xl font-bold mt-4 focus:outline-none active:bg-red-700 transition-colors"
+                    onMouseDown={startRevving}
+                    onMouseUp={stopRevving}
+                    onMouseLeave={stopRevving}
+                    onTouchStart={startRevving}
+                    onTouchEnd={stopRevving}
+                  >
+                    Rev Engine
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+    </div>
+  );
+}
+
+export default AppDev;
