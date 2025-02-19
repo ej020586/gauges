@@ -2,18 +2,15 @@ import React, { memo } from "react";
 import RadialGauge from "./RadialGauge";
 import RadialGaugeMotionAPI from "./RadialGaugeMotionAPI";
 import useStore from "../store";
+import { useGameDataStore } from "../store/useGameData";
 
 interface TachometerProps {
   redLine: number;
   maxValue: number;
 }
 
-const Tachometer: React.FC<TachometerProps> = ({
-  redLine,
-  maxValue,
-}) => {
-
-  const rpm = useStore((state) => state.rpm);
+const Tachometer: React.FC<TachometerProps> = ({ redLine, maxValue }) => {
+  const rpm = useGameDataStore((state) => state.rpm || 0);
   const isInRedLine = rpm >= redLine;
 
   return (
@@ -36,12 +33,12 @@ const Tachometer: React.FC<TachometerProps> = ({
         title="Red Line Indicator"
       />
       <div className="absolute bottom-0 left-1/2 -translate-x-1/2">
-          <div className="bg-black px-4 py-2">
-            <span className="font-mono text-2xl text-white tabular-nums">
-              {rpm.toFixed(0)}
-            </span>
-          </div>
+        <div className="bg-black px-4 py-2">
+          <span className="font-mono text-2xl text-white tabular-nums">
+            {rpm.toFixed(0)}
+          </span>
         </div>
+      </div>
     </div>
   );
 };

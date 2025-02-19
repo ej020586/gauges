@@ -1,13 +1,14 @@
 import React, { memo } from "react";
 import RadialGaugeBasic from "./RadialGauageBasic";
-import useStore from "../store";
+import { useGameDataStore } from "../store/useGameData";
 
 interface TemperatureGaugeProps {
   value: number;
 }
 
 const TemperatureGauge = () => {
-  const temperature = useStore((state) => state.temperature);
+  const temperature = useGameDataStore((state) => state.watertemp || 0);
+  console.log("temperature", temperature);
   return (
     <RadialGaugeBasic
       value={temperature}
