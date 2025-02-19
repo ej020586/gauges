@@ -56,4 +56,4 @@ digital gauges for beamng
 
 ### Use Gauges
 
-### hook up to mod
+The output of this repo goes into a dist.zip. If you put that dist folder into a vehicle mod and then link the html file file in
