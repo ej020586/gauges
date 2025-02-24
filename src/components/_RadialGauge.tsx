@@ -15,9 +15,11 @@ interface RadialGaugeProps {
 }
 
 // Memoize static SVG components
-const NeedleCap = memo(({ size, centerX }: { size: number; centerX: number }) => (
-  <circle r={size * 0.04} fill="#DC2626" cx={centerX} />
-));
+const NeedleCap = memo(
+  ({ size, centerX }: { size: number; centerX: number }) => (
+    <circle r={size * 0.04} fill="#DC2626" cx={centerX} />
+  )
+);
 
 const Needle = memo(({ size, angle }: { size: number; angle: number }) => (
   <motion.g

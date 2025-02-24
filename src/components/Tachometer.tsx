@@ -1,5 +1,5 @@
-import React, { memo } from "react";
-import RadialGauge from "./RadialGauge";
+import React, { memo, useEffect } from "react";
+import RadialGauge from "./RadialGauge/RadialGauge";
 import RadialGaugeMotionAPI from "./RadialGaugeMotionAPI";
 import useStore from "../store";
 import { useGameDataStore } from "../store/useGameData";

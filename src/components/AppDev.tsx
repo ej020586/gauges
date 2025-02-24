@@ -1,10 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import Speedometer from "./Speedometer";
 import Tachometer from "./Tachometer";
-import { useEngineRev } from "../hooks/useEngineRev";
-import { isDev } from "../config";
 import TemperatureGauge from "./TemperatureGague";
-import { initializeGameInterface } from "../beam";
 import { useSimulateGameData } from "../store/useSimulateGameData";
 import useGameData from "../store/useGameData";
 
@@ -12,11 +9,6 @@ function AppDev() {
   const { start, stop } = useSimulateGameData();
 
   useGameData();
-
-  useEffect(() => {
-    // initialize game data
-    initializeGameInterface();
-  }, []);
 
   return (
     <div className="min-h-screen bg-gray-900">

@@ -2,8 +2,7 @@
 // this is used to test the gauges and ensure they are working correctly.
 
 import { useEffect, useCallback, useState, useRef } from "react";
-import { useGameDataStore } from "./useGameData";
-import { GameData, SETUP_EVENT, UPDATE_DATA_EVENT } from "../beam";
+import { GameData } from "../beam";
 
 interface ElectricsLimits {
   rpmTacho: { min: number; max: number; maxChange: number };
@@ -67,7 +66,7 @@ const generateMockData = (lastValues: GameData) => {
 };
 
 export const useSimulateGameData = () => {
-  const [rate, setRate] = useState(50); // Update rate in milliseconds
+  const [rate, setRate] = useState(33); // Update rate in milliseconds
   const [isRunning, setIsRunning] = useState(false);
   const timeoutRef = useRef<number>();
   const lastValuesRef = useRef<GameData>({
