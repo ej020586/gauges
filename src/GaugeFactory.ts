@@ -46,9 +46,10 @@ export class GaugeFactory {
       minValue: config.minValue,
       maxValue: config.maxValue,
       initialValue: config.initialValue,
-      startAngle: 140, // Default start angle (bottom left)
-      endAngle: 400, // Default end angle (bottom right)
+      startAngle: config.startAngle || 140, // Default start angle (bottom left)
+      endAngle: config.endAngle || 400, // Default end angle (bottom right)
       showKph: config.showKph,
+      size: config.size,
       needleColor: 0x00ff00,
     });
   }

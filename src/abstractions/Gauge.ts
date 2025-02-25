@@ -3,6 +3,8 @@
  * This provides a common interface for all gauge implementations
  */
 
+import { ThreeGaugeConfig } from "../Gauge";
+
 // Base gauge configuration interface
 export interface GaugeConfig {
   minValue: number;
@@ -33,7 +35,7 @@ export enum GaugeType {
 }
 
 // Configuration for specific gauge types
-export interface SpeedometerConfig extends GaugeConfig {
+export interface SpeedometerConfig extends ThreeGaugeConfig {
   showKph?: boolean;
   type: GaugeType.SPEEDOMETER;
   container: HTMLElement;

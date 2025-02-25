@@ -1,16 +1,25 @@
 import * as THREE from "three";
+import { FontLoader } from "three/addons/loaders/FontLoader.js";
+import { TextGeometry } from "three/addons/geometries/TextGeometry.js";
+import helvetikerRegular from "three/examples/fonts/helvetiker_regular.typeface.json";
 import { valueToAngle } from "./utils/gaugeUtils";
 import { Gauge, GaugeConfig } from "./abstractions/Gauge";
 
 // Base gauge configuration interface
 export interface ThreeGaugeConfig extends GaugeConfig {
   container: HTMLElement;
-  startAngle: number; // in degrees
-  endAngle: number; // in degrees
+  startAngle?: number; // in degrees
+  endAngle?: number; // in degrees
   gaugeRadius?: number;
   backgroundColor?: number;
   tickColor?: string;
   needleColor?: number;
+  size?: number; // Controls the apparent size of the gauge (default: 1.0)
+  textConfig?: {
+    fontSize?: number; // Base font size (default: 0.5)
+    fontColor?: number; // Color of the text (default: 0xffffff)
+    fontFamily?: string; // Font family to use (default: Arial)
+  };
 }
 
 // Base gauge class that can be extended for different gauge types
@@ -19,10 +28,12 @@ export abstract class ThreeGauge implements Gauge {
   protected camera: THREE.PerspectiveCamera;
   protected renderer: THREE.WebGLRenderer;
   protected needleGroup: THREE.Group;
+  protected textGroup: THREE.Group;
   protected animationFrameId: number | null = null;
 
   protected config: Required<ThreeGaugeConfig>;
   protected currentValue: number;
+  protected baseZPosition: number = 10; // Base camera Z position
 
   constructor(config: ThreeGaugeConfig) {
     // Set default values for optional config properties
@@ -30,13 +41,19 @@ export abstract class ThreeGauge implements Gauge {
       container: config.container,
       minValue: config.minValue,
       maxValue: config.maxValue,
-      startAngle: config.startAngle,
-      endAngle: config.endAngle,
+      startAngle: config.startAngle ?? 0,
+      endAngle: config.endAngle ?? 360,
       initialValue: config.initialValue ?? config.minValue,
       gaugeRadius: config.gaugeRadius ?? 5,
       backgroundColor: config.backgroundColor ?? 0x000000,
       tickColor: config.tickColor ?? "#8080ff",
       needleColor: config.needleColor ?? 0xff0000,
+      size: config.size ?? 1.0,
+      textConfig: {
+        fontSize: config.textConfig?.fontSize ?? 0.5,
+        fontColor: config.textConfig?.fontColor ?? 0xffffff,
+        fontFamily: config.textConfig?.fontFamily ?? "Arial",
+      },
     };
 
     this.currentValue = this.config.initialValue;
@@ -46,12 +63,13 @@ export abstract class ThreeGauge implements Gauge {
     this.camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
     this.renderer = new THREE.WebGLRenderer({ antialias: true });
     this.needleGroup = new THREE.Group();
+    this.textGroup = new THREE.Group();
 
     this.init();
   }
 
   protected init(): void {
-    const { container, gaugeRadius, backgroundColor, needleColor } =
+    const { container, gaugeRadius, backgroundColor, needleColor, size } =
       this.config;
 
     // Set up renderer
@@ -64,10 +82,10 @@ export abstract class ThreeGauge implements Gauge {
     // Set up scene
     this.scene.background = new THREE.Color(backgroundColor);
 
-    // Set up camera
+    // Set up camera with size-adjusted position
     this.camera.aspect = width / height;
     this.camera.updateProjectionMatrix();
-    this.camera.position.z = 10;
+    this.camera.position.z = this.baseZPosition / size; // Adjust camera position based on size
 
     // Set up lighting
     const ambientLight = new THREE.AmbientLight(0x404040);
@@ -136,6 +154,9 @@ export abstract class ThreeGauge implements Gauge {
 
     // Handle window resize
     window.addEventListener("resize", this.handleResize);
+
+    // Add text group to scene
+    this.scene.add(this.textGroup);
   }
 
   // Abstract method to be implemented by subclasses to create gauge markings
@@ -230,17 +251,67 @@ export abstract class ThreeGauge implements Gauge {
     this.scene.add(this.needleGroup);
   }
 
+  protected createText(
+    text: string,
+    position: THREE.Vector3,
+    options: {
+      fontSize?: number;
+      color?: number;
+      fontFamily?: string;
+    } = {}
+  ): THREE.Mesh {
+    const { textConfig } = this.config;
+    const fontSize = options.fontSize ?? textConfig.fontSize;
+    const color = options.color ?? textConfig.fontColor;
+    const fontFamily = options.fontFamily ?? textConfig.fontFamily;
+
+    const loader = new FontLoader();
+    const font = loader.parse(helvetikerRegular);
+
+    const geometry = new TextGeometry(text, {
+      font: font,
+      size: fontSize,
+      // height: 0.05,
+      curveSegments: 12,
+      bevelEnabled: false,
+    });
+
+    const material = new THREE.MeshPhongMaterial({
+      color: color,
+      specular: 0x444444,
+      shininess: 30,
+    });
+
+    const textMesh = new THREE.Mesh(geometry, material);
+    textMesh.position.copy(position);
+
+    // Center the text
+    geometry.computeBoundingBox();
+    const centerOffset = new THREE.Vector3();
+    if (geometry.boundingBox) {
+      centerOffset.x =
+        -(geometry.boundingBox.max.x - geometry.boundingBox.min.x) / 2;
+      centerOffset.y =
+        -(geometry.boundingBox.max.y - geometry.boundingBox.min.y) / 2;
+    }
+    textMesh.position.add(centerOffset);
+
+    this.textGroup.add(textMesh);
+    return textMesh;
+  }
+
   protected animate = (): void => {
     this.animationFrameId = requestAnimationFrame(this.animate);
     this.renderer.render(this.scene, this.camera);
   };
 
   protected handleResize = (): void => {
-    const { container } = this.config;
+    const { container, size } = this.config;
     const width = container.clientWidth;
     const height = container.clientHeight;
 
     this.camera.aspect = width / height;
+    this.camera.position.z = this.baseZPosition / size; // Maintain size during resize
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(width, height);
   };
@@ -348,5 +419,32 @@ export abstract class ThreeGauge implements Gauge {
     this.renderer.forceContextLoss();
     const canvas = this.renderer.domElement;
     canvas.parentElement?.removeChild(canvas);
+
+    // Add text geometry disposal
+    this.textGroup.traverse((object) => {
+      if (object instanceof THREE.Mesh) {
+        if (object.geometry) {
+          object.geometry.dispose();
+        }
+        if (object.material) {
+          if (Array.isArray(object.material)) {
+            object.material.forEach((material) => material.dispose());
+          } else {
+            object.material.dispose();
+          }
+        }
+      }
+    });
+  }
+
+  public setSize(newSize: number): void {
+    this.config.size = newSize;
+    this.camera.position.z = this.baseZPosition / newSize;
+
+    // Scale text group inversely to maintain readable text size
+    const scale = 1 / newSize;
+    this.textGroup.scale.set(scale, scale, scale);
+
+    this.camera.updateProjectionMatrix();
   }
 }

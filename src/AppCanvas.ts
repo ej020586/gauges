@@ -35,6 +35,9 @@ document.addEventListener("DOMContentLoaded", () => {
     minValue: 40,
     maxValue: 140,
     initialValue: 0,
+    size: 1.0,
+    startAngle: 0,
+    endAngle: 360,
   });
 
   // Listen for game data updates

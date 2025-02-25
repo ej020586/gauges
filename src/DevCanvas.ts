@@ -33,10 +33,13 @@ document.addEventListener("DOMContentLoaded", () => {
   const gauge = gaugeFactory.createGauge({
     type: GaugeType.SPEEDOMETER,
     container: gaugeContainer,
-    minValue: 40,
+    minValue: 0,
     maxValue: 140,
     initialValue: 0,
-    showKph: false,
+    size: 1,
+    startAngle: 140,
+    endAngle: 360,
+    showKph: true,
   });
 
   // Create a control panel
