@@ -1,4 +1,4 @@
-import { Electrics } from "./store/useGameData";
+import { Electrics } from "./types";
 
 export interface GameData {
   electrics: Electrics;
