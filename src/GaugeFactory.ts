@@ -1,17 +1,16 @@
 import {
   Gauge,
-  GaugeFactory,
   GaugeType,
   SpecificGaugeConfig,
   SpeedometerConfig,
 } from "./abstractions/Gauge";
-import { ThreeJSSpeedometer } from "./Speedometer";
+import { SpeedometerGauge } from "./Speedometer";
 
 /**
  * ThreeJS implementation of the gauge factory
  * Creates different types of ThreeJS-based gauges
  */
-export class ThreeJSGaugeFactory implements GaugeFactory {
+export class GaugeFactory {
   createGauge(config: SpecificGaugeConfig): Gauge {
     switch (config.type) {
       case GaugeType.SPEEDOMETER:
@@ -42,7 +41,7 @@ export class ThreeJSGaugeFactory implements GaugeFactory {
       throw new Error("Container is required for ThreeJS speedometer");
     }
 
-    return new ThreeJSSpeedometer({
+    return new SpeedometerGauge({
       container: config.container,
       minValue: config.minValue,
       maxValue: config.maxValue,

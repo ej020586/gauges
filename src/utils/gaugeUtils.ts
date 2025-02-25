@@ -3,11 +3,11 @@
  * These utilities can be used across different implementations (Three.js, React, etc.)
  */
 
-export interface GaugeTextureConfig {
+import { GaugeConfig } from "../abstractions/Gauge";
+
+export interface GaugeTextureConfig extends GaugeConfig {
   startAngle: number;
   endAngle: number;
-  minValue: number;
-  maxValue: number;
   tickColor?: string;
   showKph?: boolean;
   majorTickInterval?: number;

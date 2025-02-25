@@ -3,7 +3,7 @@ import { valueToAngle } from "./utils/gaugeUtils";
 import { Gauge, GaugeConfig } from "./abstractions/Gauge";
 
 // Base gauge configuration interface
-export interface ThreeJSGaugeConfig extends GaugeConfig {
+export interface ThreeGaugeConfig extends GaugeConfig {
   container: HTMLElement;
   startAngle: number; // in degrees
   endAngle: number; // in degrees
@@ -14,17 +14,17 @@ export interface ThreeJSGaugeConfig extends GaugeConfig {
 }
 
 // Base gauge class that can be extended for different gauge types
-export abstract class ThreeJSGauge implements Gauge {
+export abstract class ThreeGauge implements Gauge {
   protected scene: THREE.Scene;
   protected camera: THREE.PerspectiveCamera;
   protected renderer: THREE.WebGLRenderer;
   protected needleGroup: THREE.Group;
   protected animationFrameId: number | null = null;
 
-  protected config: Required<ThreeJSGaugeConfig>;
+  protected config: Required<ThreeGaugeConfig>;
   protected currentValue: number;
 
-  constructor(config: ThreeJSGaugeConfig) {
+  constructor(config: ThreeGaugeConfig) {
     // Set default values for optional config properties
     this.config = {
       container: config.container,
@@ -57,6 +57,7 @@ export abstract class ThreeJSGauge implements Gauge {
     // Set up renderer
     const width = container.clientWidth;
     const height = container.clientHeight;
+
     this.renderer.setSize(width, height);
     container.appendChild(this.renderer.domElement);
 
@@ -85,7 +86,7 @@ export abstract class ThreeJSGauge implements Gauge {
     );
     const gaugeMaterial = new THREE.MeshPhongMaterial({
       color: backgroundColor,
-      specular: 0x222222,
+      specular: 0x333333,
       shininess: 40,
       emissive: 0x000000,
     });
@@ -258,9 +259,10 @@ export abstract class ThreeJSGauge implements Gauge {
       endAngle
     );
 
-    // Convert to radians and set needle rotation
-    const angleRad = -(angle * Math.PI) / 180;
-    this.needleGroup.rotation.z = angleRad;
+    // Convert to radians and adjust for THREE.js coordinate system
+    // Add 90° to transform from 12 o'clock reference to THREE.js's 3 o'clock reference
+    const angleRad = ((angle + 90) * Math.PI) / 180;
+    this.needleGroup.rotation.z = -angleRad;
   }
 
   public getValue(): number {

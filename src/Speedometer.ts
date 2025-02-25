@@ -1,17 +1,17 @@
 import { createGaugeTexture } from "./utils/gaugeUtils";
-import { ThreeJSGauge, ThreeJSGaugeConfig } from "./ThreeJSGauge";
+import { ThreeGauge, ThreeGaugeConfig } from "./Gauge";
 import * as THREE from "three";
 
 // Speedometer-specific configuration interface
-export interface ThreeJSSpeedometerConfig extends ThreeJSGaugeConfig {
+export interface ThreeSpeedometerConfig extends ThreeGaugeConfig {
   showKph?: boolean;
 }
 
 // Speedometer implementation that extends the base gauge
-export class ThreeJSSpeedometer extends ThreeJSGauge {
+export class SpeedometerGauge extends ThreeGauge {
   private showKph: boolean;
 
-  constructor(config: ThreeJSSpeedometerConfig) {
+  constructor(config: ThreeSpeedometerConfig) {
     super(config);
     this.showKph = config.showKph ?? true;
     this.createGaugeMarkings();

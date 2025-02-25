@@ -72,8 +72,3 @@ export type SpecificGaugeConfig =
   | WaterTempConfig
   | OilTempConfig
   | FuelConfig;
-
-// Factory function to create a gauge of the specified type
-export interface GaugeFactory {
-  createGauge(config: SpecificGaugeConfig): Gauge;
-}
