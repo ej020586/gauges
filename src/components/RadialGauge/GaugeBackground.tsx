@@ -15,7 +15,6 @@ interface GaugeBackgroundProps {
 
 const GaugeBackground: React.FC<GaugeBackgroundProps> = memo(
   ({ size, dimensions, majorTicks, minorTicks }) => {
-    console.count("++++++++++++++++++++++ GaugeBackground");
     return (
       <svg width={size} height={size} style={{ overflow: "visible" }}>
         {majorTicks.map((tick, index) => {
@@ -31,13 +30,13 @@ const GaugeBackground: React.FC<GaugeBackgroundProps> = memo(
                 y1={dimensions.radius * 0.15}
                 x2={dimensions.centerX}
                 y2={dimensions.radius * 0.15 + dimensions.tickLength}
-                stroke="#E5E7EB"
+                stroke="#000000"
                 strokeWidth={2}
               />
               <text
                 x={dimensions.centerX}
                 y={textY}
-                fill="#E5E7EB"
+                fill="#000000"
                 fontSize={size * 0.035}
                 textAnchor="middle"
                 transform={`rotate(${textRotate} ${dimensions.centerX} ${textY})`}

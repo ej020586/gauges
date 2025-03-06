@@ -1,4 +1,10 @@
-import React, { memo, useEffect, useMemo, useRef } from "react";
+import React, {
+  memo,
+  PropsWithChildren,
+  useEffect,
+  useMemo,
+  useRef,
+} from "react";
 import { motion, useAnimationFrame, useMotionValue } from "motion/react";
 import { useNeedleAnimation } from "../../hooks/useNeedleAnimation";
 import { useGameDataStore } from "../../store/useGameData";
@@ -45,57 +51,63 @@ const valueToAngle = (
   return angle;
 };
 
-const Needle = memo(({ size }: { size: number;}) => {
+type NeedleProps = {
+  size: number;
+  value: number;
+  minValue: number;
+  maxValue: number;
+  startAngle: number;
+  endAngle: number;
+};
+export const Needle = memo(
+  ({ size, value, minValue, maxValue, startAngle, endAngle }: NeedleProps) => {
+    const mAngle = useMotionValue(0);
 
-  const rpm = useGameDataStore((state) => state.rpm || 0);
-  const mAngle = useMotionValue(0);
+    useEffect(() => {
+      const angleRange = endAngle - startAngle;
+      const valueRange = maxValue - minValue;
+      const angle = valueToAngle(value, {
+        minValue,
+        maxValue,
+        startAngle,
+        endAngle,
+        valueRange,
+        angleRange,
+      });
+      mAngle.set(angle);
+    }, [value]);
 
-  useEffect(() => {
-    const angleRange = endAngle - startAngle;
-    const valueRange = maxValue - minValue;
-    const angle = valueToAngle(rpm, {
-      minValue,
-      maxValue,
-      startAngle,
-      endAngle,
-      valueRange,
-      angleRange,
-    });
-    mAngle.set(angle);
-  }, [rpm]);
+    const y2 = useMemo(() => {
+      return -size * 0.35;
+    }, [size]);
 
-  const y2 = useMemo(() => {
-    return -size * 0.35;
-  }, [size]);
+    const strokeWidth = useMemo(() => {
+      return size * 0.01;
+    }, [size]);
 
-  const strokeWidth = useMemo(() => {
-    return size * 0.01;
-  }, [size]);
+    console.log(`Needle value: ${value}`);
+    console.log(`mAngel ${mAngle.get()}`);
+    return (
+      <motion.g style={{ ...NeedleStyle, rotate: mAngle }}>
+        <line
+          x1={0}
+          y1={0}
+          x2={0}
+          y2={y2}
+          stroke="#DC2626"
+          strokeWidth={strokeWidth}
+          strokeLinecap="round"
+        />
+      </motion.g>
+    );
+  }
+);
 
-  console.log(`Needle angle: ${rpm}`);
-  console.log(`mAngel ${mAngle.get()}`);
-  return (
-    <motion.g style={{ ...NeedleStyle, rotate: mAngle }}>
-      <line
-        x1={0}
-        y1={0}
-        x2={0}
-        y2={y2}
-        stroke="#DC2626"
-        strokeWidth={strokeWidth}
-        strokeLinecap="round"
-      />
-    </motion.g>
-  );
-});
-
-const minValue = 0;
-const maxValue = 9000;
-const startAngle = -120;
-const endAngle = 60;
-
-const GaugeNeedle: React.FC<GaugeNeedleProps> = ({ size, centerX }) => {
-
+const GaugeNeedle: React.FC<PropsWithChildren<GaugeNeedleProps>> = ({
+  size,
+  centerX,
+  children,
+}) => {
   return (
     <svg
       width={size}
@@ -108,7 +120,7 @@ const GaugeNeedle: React.FC<GaugeNeedleProps> = ({ size, centerX }) => {
       }}
     >
       <g transform={`translate(${centerX} ${centerX})`}>
-        <Needle size={size} />
+        {children}
         <NeedleCap size={size} centerX={0} />
       </g>
     </svg>

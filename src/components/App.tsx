@@ -18,10 +18,11 @@ function App() {
           {/* <div className="bg-gray-900">
             <Speedometer />
           </div>
+          */}
           <div className="flex">
             <TemperatureGauge />
             <Gear />
-          </div> */}
+          </div>
           <div className="flex flex-col items-center bg-gray-900">
             <Tachometer redLine={redline} maxValue={maxRPM} />
           </div>

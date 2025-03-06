@@ -1,9 +1,16 @@
-import React, { memo, useCallback, useEffect, useMemo, useRef } from "react";
+import React, {
+  memo,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  PropsWithChildren,
+} from "react";
 import { generateTicks, useGauge } from "../../hooks/useGauge";
 import GaugeBackground from "./GaugeBackground";
-import GaugeNeedle from "./GaugeNeedle";
+import GaugeNeedle, { Needle } from "./GaugeNeedle";
 
-interface RadialGaugeProps {
+type RadialGaugeProps = {
   minValue: number;
   maxValue: number;
   size?: number;
@@ -12,19 +19,19 @@ interface RadialGaugeProps {
   majorTickCount?: number;
   className?: string;
   showText?: boolean;
-}
+  value?: number;
+};
 
-const RadialGauge: React.FC<RadialGaugeProps> = ({
+const RadialGauge: React.FC<PropsWithChildren<RadialGaugeProps>> = ({
   minValue,
   maxValue,
+  children,
   size = 400,
   startAngle = -120,
   endAngle = 120,
   majorTickCount = 12,
+  value,
 }) => {
-
-  console.count("RadialGauge");
-
   const dimensions = useMemo(
     () => ({
       radius: size / 2,
@@ -34,35 +41,28 @@ const RadialGauge: React.FC<RadialGaugeProps> = ({
     [size]
   );
 
-  const { majorTicks, minorTicks } = useMemo(
-    () => {
+  const { majorTicks, minorTicks } = useMemo(() => {
+    const angleRange = endAngle - startAngle;
+    const valueRange = maxValue - minValue;
 
-      const angleRange = endAngle - startAngle;
-      const valueRange = maxValue - minValue;
+    return generateTicks(majorTickCount, 4, {
+      startAngle,
+      valueRange,
+      minValue,
+      maxValue,
+      angleRange,
+    });
+  }, [majorTickCount, startAngle, endAngle, minValue, maxValue]);
 
-      return generateTicks(majorTickCount, 4, {
-        startAngle,
-        valueRange,
-        minValue,
-        maxValue,
-        angleRange,
-      })
-    },
-    [majorTickCount, startAngle, endAngle, minValue, maxValue]
-  );
-
-  const gaugeBackgroundDimensions = useMemo(
-    () => {
-      const dimensions = {
-        radius: size / 2,
-        centerX: size / 2,
-        tickLength: size * 0.05,
-        centerY: size / 2,
-      }
-      return dimensions;
-    },
-    [size]
-  );
+  const gaugeBackgroundDimensions = useMemo(() => {
+    const dimensions = {
+      radius: size / 2,
+      centerX: size / 2,
+      tickLength: size * 0.05,
+      centerY: size / 2,
+    };
+    return dimensions;
+  }, [size]);
 
   return (
     <div style={{ width: size, height: size }} className={`relative`}>
@@ -75,7 +75,19 @@ const RadialGauge: React.FC<RadialGaugeProps> = ({
         majorTickCount={majorTickCount}
       />
       {/* Overlay the dynamic needle */}
-      <GaugeNeedle size={size} centerX={dimensions.centerX} />
+      <GaugeNeedle size={size} centerX={dimensions.centerX}>
+        {value && (
+          <Needle
+            size={size}
+            value={value}
+            minValue={minValue}
+            maxValue={maxValue}
+            startAngle={startAngle}
+            endAngle={endAngle}
+          />
+        )}
+        {!value && children}
+      </GaugeNeedle>
     </div>
   );
 };

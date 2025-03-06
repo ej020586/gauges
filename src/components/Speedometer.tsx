@@ -1,6 +1,9 @@
 import React, { memo } from "react";
 import RadialGaugeMotionAPI from "./RadialGaugeMotionAPI";
 import { useGameDataStore } from "../store/useGameData";
+import RadialGauge from "./RadialGauge/RadialGauge";
+import { Needle } from "./RadialGauge/GaugeNeedle";
+import GaugeLabel from "./GaugeLabel";
 interface SpeedometerProps {}
 
 const Speedometer: React.FC<SpeedometerProps> = () => {
@@ -8,7 +11,7 @@ const Speedometer: React.FC<SpeedometerProps> = () => {
   console.log("Speedometer", speed);
   return (
     <div className="relative">
-      <RadialGaugeMotionAPI
+      <RadialGauge
         value={speed ?? 0}
         minValue={0}
         maxValue={160}
@@ -16,7 +19,17 @@ const Speedometer: React.FC<SpeedometerProps> = () => {
         startAngle={-120}
         endAngle={90}
         majorTickCount={15}
-      />
+      >
+        <Needle
+          size={250}
+          value={speed ?? 0}
+          minValue={0}
+          maxValue={160}
+          startAngle={-120}
+          endAngle={90}
+        />
+      </RadialGauge>
+      <GaugeLabel value={speed ?? 0} />
     </div>
   );
 };
