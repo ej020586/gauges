@@ -13,7 +13,7 @@ function App() {
 
   return (
     <div className="min-h-screen bg-white">
-      <div className="fixed top-0 w-screen">
+      <div className="fixed top-4 w-screen">
         <div className="flex flex-row items-center justify-center">
           <div>
             <Speedometer />

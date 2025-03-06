@@ -13,11 +13,11 @@ const TemperatureGauge = () => {
   return (
     <RadialGauge
       value={temperature}
-      minValue={100}
-      maxValue={450}
+      minValue={50}
+      maxValue={130}
       majorTickCount={4}
       startAngle={-90}
-      endAngle={90}
+      endAngle={45}
       size={200}
     />
   );

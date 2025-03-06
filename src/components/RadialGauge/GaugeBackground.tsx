@@ -37,9 +37,11 @@ const GaugeBackground: React.FC<GaugeBackgroundProps> = memo(
                 x={dimensions.centerX}
                 y={textY}
                 fill="#000000"
-                fontSize={size * 0.035}
+                fontSize={size * 0.05}
                 textAnchor="middle"
                 transform={`rotate(${textRotate} ${dimensions.centerX} ${textY})`}
+                fontFamily="Arial"
+                fontWeight="bold"
               >
                 {Math.round(tick.value)}
               </text>

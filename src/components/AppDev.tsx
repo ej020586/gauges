@@ -12,7 +12,7 @@ function AppDev() {
 
   return (
     <div className="min-h-screen bg-gray-900">
-      <div className="fixed top-0 w-screen">
+      <div className="fixed top-10 w-screen">
         <div className="flex flex-row items-center justify-center bg-white">
           <div>
             <Speedometer />

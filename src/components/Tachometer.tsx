@@ -22,7 +22,7 @@ const Tachometer: React.FC<TachometerProps> = ({ redLine, maxValue }) => {
       <RadialGauge
         minValue={0}
         maxValue={maxValue}
-        size={250}
+        size={300}
         startAngle={-120}
         endAngle={60}
         majorTickCount={8}

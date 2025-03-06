@@ -14,11 +14,11 @@ const Speedometer: React.FC<SpeedometerProps> = () => {
       <RadialGauge
         value={speed ?? 0}
         minValue={0}
-        maxValue={160}
-        size={250}
+        maxValue={140}
+        size={300}
         startAngle={-120}
         endAngle={90}
-        majorTickCount={15}
+        majorTickCount={12}
       >
         <Needle
           size={250}
