@@ -18,6 +18,73 @@ interface TickMark {
   value: number;
 }
 
+// Keep these utility functions as they are since they're not frequently called
+const calculateArcPath = (radius: number, { startAngle, endAngle }: { startAngle: number, endAngle: number }): string => {
+  const startRad = ((startAngle - 90) * Math.PI) / 180;
+  const endRad = ((endAngle - 90) * Math.PI) / 180;
+
+  const x1 = radius + radius * Math.cos(startRad);
+  const y1 = radius + radius * Math.sin(startRad);
+  const x2 = radius + radius * Math.cos(endRad);
+  const y2 = radius + radius * Math.sin(endRad);
+
+  const largeArc = endAngle - startAngle <= 180 ? 0 : 1;
+
+  return `M ${x1} ${y1} A ${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2}`;
+};
+
+// const calculateSegmentPath = (radius: number, { startAngle, endAngle }: { startAngle: number, endAngle: number }): string => {
+//   const startRad = ((startAngle - 180) * Math.PI) / 180;
+//   const endRad = ((endAngle - 180) * Math.PI) / 180;
+
+//   const x1 = radius + radius * Math.cos(startRad);
+//   const y1 = radius + radius * Math.sin(startRad);
+//   const x2 = radius + radius * Math.cos(endRad);
+//   const y2 = radius + radius * Math.sin(endRad);
+
+//   const largeArc = valueToAngle(toValue) - valueToAngle(fromValue) <= 180 ? 0 : 1;
+
+//   return `M ${x1} ${y1} A ${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2}`;
+// };
+
+type GenerateTicksConfig = {
+  startAngle: number;
+  valueRange: number;
+  minValue: number;
+  maxValue: number;
+  angleRange: number;
+}
+
+export const generateTicks = (targetMajorTickCount: number, minorTicksPerMajor: number, { startAngle, valueRange, minValue, maxValue, angleRange }: GenerateTicksConfig) => {
+  const increment = calculateRoundingIncrement(valueRange, targetMajorTickCount);
+  const startVal = Math.ceil(minValue / increment) * increment;
+  const endVal = Math.floor(maxValue / increment) * increment;
+  const actualMajorTickCount = Math.floor((endVal - startVal) / increment) + 1;
+
+  const majorTicks: TickMark[] = [];
+  const minorTicks: TickMark[] = [];
+
+  for (let i = 0; i < actualMajorTickCount; i++) {
+    const tickValue = startVal + i * increment;
+    const normalizedPosition = (tickValue - minValue) / valueRange;
+    const angle = startAngle + normalizedPosition * angleRange;
+
+    majorTicks.push({ angle, value: tickValue });
+
+    if (i < actualMajorTickCount - 1) {
+      const minorIncrement = increment / (minorTicksPerMajor + 1);
+      for (let j = 1; j <= minorTicksPerMajor; j++) {
+        const minorValue = tickValue + j * minorIncrement;
+        const minorNormalizedPosition = (minorValue - minValue) / valueRange;
+        const minorAngle = startAngle + minorNormalizedPosition * angleRange;
+        minorTicks.push({ angle: minorAngle, value: minorValue });
+      }
+    }
+  }
+
+  return { majorTicks, minorTicks };
+}
+
 export const useGauge = (initialValue: number, config: GaugeConfig) => {
   const [value, _setValue] = useState(initialValue);
   const { minValue, maxValue, startAngle = -120, endAngle = 120 } = config;
@@ -48,75 +115,19 @@ export const useGauge = (initialValue: number, config: GaugeConfig) => {
   const angle = useMemo(() => valueToAngle(value), [value, valueToAngle]);
 
   // Memoize the tick generation function
-  const generateTicks = useCallback((targetMajorTickCount: number, minorTicksPerMajor: number) => {
-    const increment = calculateRoundingIncrement(valueRange, targetMajorTickCount);
-    const startVal = Math.ceil(minValue / increment) * increment;
-    const endVal = Math.floor(maxValue / increment) * increment;
-    const actualMajorTickCount = Math.floor((endVal - startVal) / increment) + 1;
 
-    const majorTicks: TickMark[] = [];
-    const minorTicks: TickMark[] = [];
 
-    for (let i = 0; i < actualMajorTickCount; i++) {
-      const tickValue = startVal + i * increment;
-      const normalizedPosition = (tickValue - minValue) / valueRange;
-      const angle = startAngle + normalizedPosition * angleRange;
 
-      majorTicks.push({ angle, value: tickValue });
-
-      if (i < actualMajorTickCount - 1) {
-        const minorIncrement = increment / (minorTicksPerMajor + 1);
-        for (let j = 1; j <= minorTicksPerMajor; j++) {
-          const minorValue = tickValue + j * minorIncrement;
-          const minorNormalizedPosition = (minorValue - minValue) / valueRange;
-          const minorAngle = startAngle + minorNormalizedPosition * angleRange;
-          minorTicks.push({ angle: minorAngle, value: minorValue });
-        }
-      }
-    }
-
-    return { majorTicks, minorTicks };
-  }, [minValue, maxValue, startAngle, angleRange, valueRange]);
-
-  // Keep these utility functions as they are since they're not frequently called
-  const calculateArcPath = (radius: number): string => {
-    const startRad = ((startAngle - 90) * Math.PI) / 180;
-    const endRad = ((endAngle - 90) * Math.PI) / 180;
-
-    const x1 = radius + radius * Math.cos(startRad);
-    const y1 = radius + radius * Math.sin(startRad);
-    const x2 = radius + radius * Math.cos(endRad);
-    const y2 = radius + radius * Math.sin(endRad);
-
-    const largeArc = endAngle - startAngle <= 180 ? 0 : 1;
-
-    return `M ${x1} ${y1} A ${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2}`;
-  };
-
-  const calculateSegmentPath = (radius: number, fromValue: number, toValue: number): string => {
-    const startRad = ((valueToAngle(fromValue) - 180) * Math.PI) / 180;
-    const endRad = ((valueToAngle(toValue) - 180) * Math.PI) / 180;
-
-    const x1 = radius + radius * Math.cos(startRad);
-    const y1 = radius + radius * Math.sin(startRad);
-    const x2 = radius + radius * Math.cos(endRad);
-    const y2 = radius + radius * Math.sin(endRad);
-
-    const largeArc = valueToAngle(toValue) - valueToAngle(fromValue) <= 180 ? 0 : 1;
-
-    return `M ${x1} ${y1} A ${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2}`;
-  };
 
   const state = useMemo(() => ({
     value,
     setValue,
     angle,
     calculateArcPath,
-    calculateSegmentPath,
     generateTicks,
     valueToAngle,
     angleToValue,
-  }), [value, setValue, angle, calculateArcPath, calculateSegmentPath, generateTicks, valueToAngle, angleToValue]);
+  }), [value, setValue, angle, calculateArcPath, generateTicks, valueToAngle, angleToValue]);
 
   return state;
 };

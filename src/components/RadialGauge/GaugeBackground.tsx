@@ -15,6 +15,7 @@ interface GaugeBackgroundProps {
 
 const GaugeBackground: React.FC<GaugeBackgroundProps> = memo(
   ({ size, dimensions, majorTicks, minorTicks }) => {
+    console.count("++++++++++++++++++++++ GaugeBackground");
     return (
       <svg width={size} height={size} style={{ overflow: "visible" }}>
         {majorTicks.map((tick, index) => {

@@ -16,12 +16,11 @@ export const UPDATE_DATA_EVENT: string = "LuaDataUpdate";
 
 export function initializeGameInterface() {
   window.setup = function (gameData: GameData) {
-    console.log("window.setup", gameData);
+    console.log(`window.setup: ${JSON.stringify(gameData)}`);
     document.dispatchEvent(new CustomEvent(SETUP_EVENT, { detail: gameData }));
   };
 
   window.updateData = function (gameData: GameData) {
-    console.log("window.updateData", gameData);
     document.dispatchEvent(
       new CustomEvent(UPDATE_DATA_EVENT, { detail: gameData })
     );

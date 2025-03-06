@@ -89,7 +89,6 @@ export const useSimulateGameData = () => {
 
   const scheduleNextUpdate = useCallback(() => {
     const updateData = changeMockData();
-    console.log("updateData", updateData);
     if (window.updateData) {
       window.updateData(updateData);
     } else {
