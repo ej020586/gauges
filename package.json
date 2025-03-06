@@ -4,7 +4,7 @@
   "description": "Gauges for beam ng",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && cd dist && zip -r ../dist.zip . && cd ..",
     "validate-changelog": "node scripts/validate-changelog.js",
     "prepare": "husky"
   },
@@ -13,7 +13,8 @@
     "motion": "^12.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "three": "^0.172.0"
+    "three": "^0.172.0",
+    "zustand": "^5.0.3"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",

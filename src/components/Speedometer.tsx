@@ -1,27 +1,37 @@
-import React from "react";
-import RadialGauge from "./RadialGauge";
+import React, { memo } from "react";
 import RadialGaugeMotionAPI from "./RadialGaugeMotionAPI";
+import { useGameDataStore } from "../store/useGameData";
+import RadialGauge from "./RadialGauge/RadialGauge";
+import { Needle } from "./RadialGauge/GaugeNeedle";
+import GaugeLabel from "./GaugeLabel";
+interface SpeedometerProps {}
 
-interface SpeedometerProps {
-  value: number;
-  className?: string;
-}
-
-const Speedometer: React.FC<SpeedometerProps> = ({ value, className }) => {
+const Speedometer: React.FC<SpeedometerProps> = () => {
+  const speed = useGameDataStore((state) => state.speed);
+  console.log("Speedometer", speed);
   return (
     <div className="relative">
-      <RadialGaugeMotionAPI
-        value={value}
+      <RadialGauge
+        value={speed ?? 0}
         minValue={0}
         maxValue={160}
-        className={className}
         size={250}
         startAngle={-120}
         endAngle={90}
         majorTickCount={15}
-      />
+      >
+        <Needle
+          size={250}
+          value={speed ?? 0}
+          minValue={0}
+          maxValue={160}
+          startAngle={-120}
+          endAngle={90}
+        />
+      </RadialGauge>
+      <GaugeLabel value={speed ?? 0} />
     </div>
   );
 };
 
-export default Speedometer;
+export default memo(Speedometer);

@@ -146,7 +146,7 @@ const RadialGaugeMotionAPI: React.FC<RadialGaugeMotionAPIProps> = ({
         <div className="absolute bottom-0 left-1/2 -translate-x-1/2">
           <div className="bg-black px-4 py-2">
             <span className="font-mono text-2xl text-white tabular-nums">
-              {value.toFixed(2)}
+              {value.toFixed(0)}
             </span>
           </div>
         </div>
