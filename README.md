@@ -1,59 +1,70 @@
-# gauges
-digital gauges for beamng
+# Automotive Gauges Project
 
-### Getting Started
+This project provides a collection of customizable automotive gauges for racing simulation or real-world automotive applications. It includes traditional gauges as well as a FuelTech-style digital dashboard.
 
-1. **Prerequisites**
-   - Install [Node.js](https://nodejs.org/) (version 16 or higher)
-   - Install [Git](https://git-scm.com/downloads)
-   - A code editor (we recommend [Visual Studio Code](https://code.visualstudio.com/))
+## Features
 
-2. **Clone the Repository**
-   ```bash
-   # Open your terminal/command prompt
-   git clone https://github.com/your-username/gauges.git
-   cd gauges
-   ```
+- Traditional analog-style gauges (speedometer, tachometer, temperature)
+- FuelTech FT550-style digital dashboard
+- Real-time data updates
+- Responsive design
+- Easy switching between different gauge styles
 
-3. **Install Dependencies**
-   ```bash
-   npm install
-   ```
+## Gauge Types
 
-4. **Start the Development Server**
-   ```bash
-   npm run dev
-   ```
-   This will start the development server at `http://localhost:3000`
+### Standard Gauges
+- Speedometer
+- Tachometer (with redline indicator)
+- Temperature Gauge
+- Gear Indicator
 
-5. **Create Your First Gauge**
-   - Navigate to the `src/components/gauges` folder
-   - Create a new file for your gauge (e.g., `MyGauge.tsx`)
-   - Use the following template to get started:
-   ```typescript
-   import { useGaugeData } from '@/hooks/useGaugeData';
+### FuelTech Dashboard
+The FuelTech dashboard displays:
+- RPM with visual bar graph
+- Speed
+- MAP (Manifold Absolute Pressure)
+- O2 Sensors (Left and Right AFR)
+- Front Brake Pressure
+- Injector Pulse Width
+- Throttle Position
+- Fuel Pressure
+- Battery Voltage
+- Oil Pressure
+- Timing
+- O2 Correction
+- Data Logging Status
 
-   export const MyGauge = () => {
-     const { value } = useGaugeData('engineRPM'); // Replace with desired data point
+## Usage
 
-     return (
-       <div className="gauge">
-         <h2>My Gauge</h2>
-         <div>{value}</div>
-       </div>
-     );
-   };
-   ```
+1. Run the application
+2. Use the dropdown in the top-right corner to switch between gauge styles:
+   - Default Gauges: Traditional analog-style gauges
+   - FuelTech Dashboard: Digital FuelTech FT550-style dashboard
+   - Dev Mode: Development testing mode (only available in dev environment)
 
-6. **Test Your Gauge**
-   - Import and add your gauge to `src/pages/index.tsx`
-   - The gauge will automatically update with live data when connected to BeamNG
+## Development
 
-7. **Basic Customization**
-   - Modify the CSS in your gauge component
-   - Use the provided hooks to access different vehicle data
-   - Experiment with different layouts and visualizations
+The project is built with:
+- React
+- TypeScript
+- Tailwind CSS
+- Canvas API for custom graphics
 
-### Use Gauges
+### Project Structure
 
-### hook up to mod
+- `src/components/`: UI components
+- `src/hooks/`: Custom React hooks
+- `src/store/`: State management using Zustand
+- `src/beam.ts`: Game interface integration
+
+### Adding New Gauges
+
+To add a new gauge:
+1. Create a new component in `src/components/`
+2. Add any required data to the game data store
+3. Create a custom hook if needed for gauge-specific logic
+4. Add the gauge to the appropriate App component
+
+## License
+
+MIT
