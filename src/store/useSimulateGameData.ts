@@ -15,7 +15,7 @@ const ELECTRICS_LIMITS: ElectricsLimits = {
   rpmTacho: { min: 0, max: 8000, maxChange: 8000 },
   wheelspeed: { min: 0, max: 200, maxChange: 200 }, // km/h
   gear: { min: -1, max: 6, maxChange: 1 }, // -1 for reverse, 0 for neutral, 1-6 for gears
-  watertemp: { min: 100, max: 400, maxChange: 450 }, // degrees Celsius
+  watertemp: { min: 100, max: 400, maxChange: 350 }, // degrees Celsius
 };
 
 const getRandomChange = (maxChange: number) => {
