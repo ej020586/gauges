@@ -1,37 +1,27 @@
-import React from "react";
+import React, { memo } from "react";
 import RadialGauge from "./RadialGauge";
 import RadialGaugeMotionAPI from "./RadialGaugeMotionAPI";
+import useStore from "../store";
 
 interface TachometerProps {
-  value: number;
   redLine: number;
-  className?: string;
   maxValue: number;
 }
 
-const useTachometerLogic = (value: number, redLine: number) => {
-  const isInRedLine = value >= redLine;
-
-  return {
-    isInRedLine,
-  };
-};
-
 const Tachometer: React.FC<TachometerProps> = ({
-  value,
   redLine,
   maxValue,
-  className,
 }) => {
-  const { isInRedLine } = useTachometerLogic(value, redLine);
+
+  const rpm = useStore((state) => state.rpm);
+  const isInRedLine = rpm >= redLine;
 
   return (
     <div className="relative">
       <RadialGauge
-        value={value}
+        value={rpm}
         minValue={0}
         maxValue={maxValue}
-        className={className}
         size={250}
         startAngle={-120}
         endAngle={60}
@@ -45,8 +35,15 @@ const Tachometer: React.FC<TachometerProps> = ({
         }`}
         title="Red Line Indicator"
       />
+      <div className="absolute bottom-0 left-1/2 -translate-x-1/2">
+          <div className="bg-black px-4 py-2">
+            <span className="font-mono text-2xl text-white tabular-nums">
+              {rpm.toFixed(0)}
+            </span>
+          </div>
+        </div>
     </div>
   );
 };
 
-export default Tachometer;
+export default memo(Tachometer);
